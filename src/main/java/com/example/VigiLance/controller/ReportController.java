@@ -18,11 +18,9 @@ import java.util.Map;
 @RequestMapping("/api/reports")
 public class ReportController {
     private final ReportService reportService;
-    private final SmsService smsService;
 
-    public ReportController(ReportService reportService, SmsService smsService) {
+    public ReportController(ReportService reportService) {
         this.reportService = reportService;
-        this.smsService = smsService;
     }
 
     @Operation(summary = "Créer un nouveau signalement", description = "Permet de soumettre un signalement anonyme")
@@ -32,7 +30,9 @@ public class ReportController {
     })
     @PostMapping
     public ResponseEntity<Report> createReport(@RequestBody Report report) {
-        Report savedReport = reportService.saveReport(report);
+        // Simuler un numéro d'utilisateur (à remplacer par une vraie logique)
+        String userPhoneNumber = "whatsapp:+22891934408";
+        Report savedReport = reportService.saveReport(report, userPhoneNumber);
         return ResponseEntity.ok(savedReport);
     }
 
@@ -59,14 +59,4 @@ public class ReportController {
         return ResponseEntity.ok(savedReport);
     }
 
-    @Operation(summary = "Envoyer un message WhatsApp", description = "Envoie un message WhatsApp avec un modèle de contenu")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Message envoyé avec succès"),
-            @ApiResponse(responseCode = "400", description = "Requête invalide")
-    })
-    @PostMapping("/testWhatsApp")
-    public ResponseEntity<String> testwhasap() {
-        smsService.testWhatsApp();
-        return ResponseEntity.ok("Message envoyé avec succès");
-    }
 }
