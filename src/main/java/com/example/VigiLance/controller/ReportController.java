@@ -1,19 +1,18 @@
 package com.example.VigiLance.controller;
 
-
+import com.example.VigiLance.entity.Comment;
 import com.example.VigiLance.entity.Report;
 import com.example.VigiLance.service.ReportService;
-import com.example.VigiLance.service.SmsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
+@Tag(name = "Reports", description = "API pour gérer les signalements anonymes")
 @RestController
 @RequestMapping("/api/reports")
 public class ReportController {
@@ -30,33 +29,44 @@ public class ReportController {
     })
     @PostMapping
     public ResponseEntity<Report> createReport(@RequestBody Report report) {
-        // Simuler un numéro d'utilisateur (à remplacer par une vraie logique)
-        String userPhoneNumber = "whatsapp:+22891934408";
-        Report savedReport = reportService.saveReport(report, userPhoneNumber);
+        Report savedReport = reportService.saveReport(report);
         return ResponseEntity.ok(savedReport);
     }
 
-    @Operation(summary = "Lister tous les signalements", description = "Réservé aux administrateurs")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Liste des signalements"),
-            @ApiResponse(responseCode = "403", description = "Accès refusé")
-    })
-    @SecurityRequirement(name = "bearerAuth")
-    @GetMapping("/admin")
-    public ResponseEntity<List<Report>> listReports() {
-        List<Report> reports = reportService.findAllReports();
-        return ResponseEntity.ok(reports);
+    @Operation(summary = "Obtenir tous les signalements", description = "Récupère la liste de tous les signalements")
+    @GetMapping
+    public ResponseEntity<List<Report>> getAllReports() {
+        return ResponseEntity.ok(reportService.findAllReports());
     }
 
-    @Operation(summary = "Créer un signalement à partir d'un SMS", description = "Permet de soumettre un signalement via SMS ou WhatsApp")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Signalement créé avec succès"),
-            @ApiResponse(responseCode = "400", description = "Requête invalide")
-    })
-    @PostMapping("/sms")
-    public ResponseEntity<Report> createReportFromSms(@RequestParam String smsContent, @RequestParam String phoneNumber) {
-        Report savedReport = reportService.saveReportFromSms(smsContent, phoneNumber);
-        return ResponseEntity.ok(savedReport);
+    @Operation(summary = "Obtenir un signalement par ID", description = "Récupère les détails d'un signalement spécifique")
+    @GetMapping("/{id}")
+    public ResponseEntity<Report> getReportById(@PathVariable Long id) {
+        return ResponseEntity.ok(reportService.findReportById(id));
     }
 
+    @Operation(summary = "Mettre à jour un signalement", description = "Met à jour les informations d'un signalement")
+    @PutMapping("/{id}")
+    public ResponseEntity<Report> updateReport(@PathVariable Long id, @RequestBody Report report) {
+        return ResponseEntity.ok(reportService.updateReport(id, report));
+    }
+
+    @Operation(summary = "Supprimer un signalement", description = "Supprime un signalement spécifique")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteReport(@PathVariable Long id) {
+        reportService.deleteReport(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Ajouter un commentaire à un signalement", description = "Ajoute un commentaire à un signalement spécifique")
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Comment> addComment(@PathVariable Long id, @RequestBody Comment comment) {
+        return ResponseEntity.ok(reportService.addComment(id, comment));
+    }
+
+    @Operation(summary = "Obtenir les commentaires d'un signalement", description = "Récupère tous les commentaires d'un signalement")
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> getCommentsByReportId(@PathVariable Long id) {
+        return ResponseEntity.ok(reportService.findCommentsByReportId(id));
+    }
 }
