@@ -23,11 +23,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reports")
 @CrossOrigin(origins = "http://localhost:4200")
-@RequiredArgsConstructor
 public class ReportController {
 
-    private ReportService reportService;
-    private UserService userService;
+    private final ReportService reportService;
+
+    @Autowired
+    public ReportController(ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     @Operation(summary = "Créer un signalement", description = "Crée un nouveau signalement, avec ou sans authentification")
     @ApiResponses(value = {
