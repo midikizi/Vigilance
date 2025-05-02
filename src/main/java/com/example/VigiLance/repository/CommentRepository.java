@@ -2,11 +2,12 @@ package com.example.VigiLance.repository;
 
 import com.example.VigiLance.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByReportId(Long reportId);
+    @Query("SELECT c FROM Comment c WHERE c.report.id = :reportId")
+    List<Comment> findByReportId(@Param("reportId") Long reportId);
 }
